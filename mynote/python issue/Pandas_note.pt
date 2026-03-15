@@ -1,0 +1,69 @@
+#读取
+  # ========== 1. 从数据库读取（配合PyMySQL，项目主用法）==========
+  from pymysql import connect
+  conn = connect(host="",user="",password="",database="")
+  df = pd.read_sql("SELECT * FROM orderinfo", conn)  # 直接读SQL
+  # ========== 2. 从文件读取（通用场景）==========
+  df = pd.read_csv("data.csv")       # CSV文件
+  df = pd.read_excel("data.xlsx")    # Excel文件
+  df = pd.read_json("data.json")     # JSON接口数据
+  # ========== 3. 从字典/列表创建（测试数据）==========
+  df = pd.DataFrame(data_list)  # 接口返回的列表转DataFrame
+#查看
+  df.head(10)          # 前10行
+  df.tail(10)          # 后10行
+  df.info()            # 字段类型/空值
+  df.describe()        # 数值统计（均值/最值/标准差）
+  df.isnull().sum()    # 统计空值数量
+  df.duplicated().sum()# 统计重复行
+  df.columns           # 查看所有列名
+  df.dtypes            # 查看数据类型
+#清洗
+  # ========== 1. 空值处理 ==========
+  df = df.dropna()                # 删除空值行
+  df = df.fillna(0)               # 空值填充为0
+  df["stock"] = df["stock"].fillna(df["stock"].mean())  # 均值填充
+  # ========== 2. 重复数据处理 ==========
+  df = df.drop_duplicates()       # 删除全量重复行
+  df = df.drop_duplicates("orderid")  # 按订单ID去重
+  # ========== 3. 数据类型转换 ==========
+  df["order_time"] = pd.to_datetime(df["order_time"])  # 转时间
+  df["volume"] = df["volume"].astype(int)              # 转整数
+  # ========== 4. 异常值过滤 ==========
+  df = df[df["volume"] > 0]        # 过滤销量为负的异常数据
+  df = df[(df["prices"]>0) & (df["stock"]>0)]
+  # ========== 5. 字段重命名 ==========
+  df.rename(columns={"user":"user_id"}, inplace=True)
+#计算
+  # 1. 计算销售额（项目必备）
+  df["sales"] = df["prices"] * df["volume"]
+  # 2. 时间字段拆分（BI统计必备）
+  df["date"] = df["order_time"].dt.date        # 日期
+  df["month"] = df["order_time"].dt.month      # 月份
+  df["hour"] = df["order_time"].dt.hour        # 小时
+  # 3. 条件列生成
+  df["level"] = df["sales"].apply(lambda x: "高" if x>10000 else "低")
+#分组聚合
+  # 单维度分组（品类/渠道/时间）
+  result = df.groupby("category").agg(
+      total_volume=("volume","sum"),
+      total_sales=("sales","sum"),
+      avg_stock=("stock","mean"),
+      order_count=("orderid","count")
+  ).reset_index()
+  # 多维度分组
+  result = df.groupby(["category","order_channel"]).agg(
+      sales=("sales","sum")
+  ).reset_index()
+#存储
+  # 1. 存为文件
+  df.to_csv("result.csv", index=False)
+  df.to_excel("result.xlsx", index=False)
+  # 2. 回写数据库（配合SQLAlchemy）
+  from sqlalchemy import create_engine
+  engine = create_engine("mysql+pymysql://user:pass@ip/db")
+  df.to_sql("order_backup", engine, if_exists="append", index=False)
+# 数据透视表
+pivot = pd.pivot_table(df, values="sales", index="category", columns="order_channel")
+# 窗口函数（排名/累计）
+df["rank"] = df.groupby("category")["sales"].rank(ascending=False)
