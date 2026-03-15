@@ -3,11 +3,11 @@ from datetime import datetime
 import time
 def write_data():
     zhanghao = {
-        "host": "101.132.152.206", 
-        "user": "testdata", 
-        "password": "Ccc123456.", 
-        "database": "testdata",  
-        "charset": "utf8mb4"}
+        "host": "", 
+        "user": "", 
+        "password": "", 
+        "database": "",  
+        "charset": ""}
     conn = pymysql.connect(**zhanghao)
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     try:
