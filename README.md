@@ -13,14 +13,9 @@ ODS → DWD → DWS → ADS
 matplotlib / plotly / streamlit / seaborn  
 Charts: BOX, BAR, LINE, PIE, POINT, VIOLIN, GANTT...
 ## 🔍 6. Analysis
-- AB Test
-- Cohort Analysis
-- Pareto Analysis
-- Attribution Analysis
-- RFM User Analysis
+- AB Test / Cohort Analysis / Pareto Analysis / Attribution Analysis /RFM User Analysis
 ## 🤖 7. Modeling & Prediction
-- Linear Regression
-- XGBoost
+- Pytorch
 - Transformer
 ## 🧰 8. Tools & Frameworks
-PowerBI / QuickBI / Flask / Fastapi
+PowerBI / QuickBI / Fastapi / Cursor
